@@ -21,6 +21,7 @@ public class OrderTest {
     private WebDriver driver;
     private MainPage mainPage;
     private OrderPage orderPage;
+    private WebDriverWait wait;
 
     @BeforeEach
     public void setUp() {
@@ -29,20 +30,17 @@ public class OrderTest {
         driver = new ChromeDriver(options);
         driver.get("https://qa-scooter.praktikum-services.ru/");
 
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
         // Ждем загрузки страницы
-        new WebDriverWait(driver, Duration.ofSeconds(10))
-                .until(ExpectedConditions.jsReturnsValue("return document.readyState === 'complete'"));
+        wait.until(ExpectedConditions.jsReturnsValue("return document.readyState === 'complete'"));
 
         mainPage = new MainPage(driver);
         orderPage = new OrderPage(driver);
         mainPage.acceptCookies();
 
-        // Дополнительное ожидание после принятия cookies
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        // Явное ожидание вместо sleep - ждем скрытия cookie банера
+        wait.until(ExpectedConditions.invisibilityOfElementLocated(mainPage.getCookieButtonLocator()));
     }
 
     @ParameterizedTest
@@ -70,30 +68,21 @@ public class OrderTest {
         orderButtonClick.run();
 
         // Ждем загрузки формы заказа
-        new WebDriverWait(driver, Duration.ofSeconds(5))
-                .until(ExpectedConditions.urlContains("order"));
+        wait.until(ExpectedConditions.urlContains("order"));
 
         // Заполняем первую часть формы
         orderPage.fillFirstStep(name, lastName, address, phone);
         orderPage.clickNextButton();
 
-        // Ждем загрузки второй части формы
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        // Ждем загрузки второй части формы - проверяем видимость поля даты
+        wait.until(ExpectedConditions.visibilityOfElementLocated(orderPage.getDateFieldLocator()));
 
         // Заполняем вторую часть формы
         orderPage.fillSecondStep(date, period, color, comment);
         orderPage.clickOrderButton();
 
         // Ждем появления окна подтверждения
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        wait.until(ExpectedConditions.visibilityOfElementLocated(orderPage.getConfirmButtonLocator()));
 
         // Подтверждаем заказ
         orderPage.confirmOrder();
@@ -113,3 +102,6 @@ public class OrderTest {
         }
     }
 }
+
+
+

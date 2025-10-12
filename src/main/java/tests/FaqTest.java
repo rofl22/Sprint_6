@@ -2,11 +2,7 @@ package tests;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-
-
 import org.junit.jupiter.params.ParameterizedTest;
-
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -18,17 +14,11 @@ import data.TestData;
 
 import java.time.Duration;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-
+import static org.junit.jupiter.api.Assertions.*;
 
 public class FaqTest {
     private WebDriver driver;
     private MainPage mainPage;
-
-
-    @Test
 
     @BeforeEach
     public void setUp() {
@@ -44,26 +34,16 @@ public class FaqTest {
         mainPage = new MainPage(driver);
         mainPage.acceptCookies();
 
-        // Дополнительное ожидание после принятия cookies
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        // Явное ожидание вместо sleep - ждем скрытия cookie банера
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        wait.until(ExpectedConditions.invisibilityOfElementLocated(mainPage.getCookieButtonLocator()));
     }
 
     @ParameterizedTest
     @MethodSource("faqDataProvider")
     public void testFaqItems(int questionIndex, String expectedAnswer) {
-        // Кликаем на вопрос
+        // Кликаем на вопрос (внутри метода уже есть ожидание появления ответа)
         mainPage.clickFaqQuestion(questionIndex);
-
-        // Ждем немного перед проверкой
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
 
         // Проверяем, что ответ отображается и содержит правильный текст
         assertTrue(mainPage.isFaqAnswerDisplayed(questionIndex),
@@ -85,3 +65,4 @@ public class FaqTest {
         }
     }
 }
+

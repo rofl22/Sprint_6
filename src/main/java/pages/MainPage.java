@@ -67,22 +67,36 @@ public class MainPage {
         wait.until(ExpectedConditions.elementToBeClickable(question));
         js.executeScript("arguments[0].click();", question);
 
-        // Ждем анимацию
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        // Ждем появления ответа с явным ожиданием
+        wait.until(ExpectedConditions.visibilityOf(getFaqAnswerElement(index)));
     }
 
     public String getFaqAnswerText(int index) {
-        List<WebElement> answers = driver.findElements(faqAnswer);
-        return answers.get(index).getText();
+        WebElement answer = getFaqAnswerElement(index);
+        return answer.getText();
     }
 
     public boolean isFaqAnswerDisplayed(int index) {
-        List<WebElement> answers = driver.findElements(faqAnswer);
-        WebElement answer = answers.get(index);
+        WebElement answer = getFaqAnswerElement(index);
         return answer.isDisplayed() && !answer.getText().isEmpty();
     }
+
+    private WebElement getFaqAnswerElement(int index) {
+        List<WebElement> answers = driver.findElements(faqAnswer);
+        return answers.get(index);
+    }
+
+
+    public By getCookieButtonLocator() {
+        return cookieButton;
+    }
+
+    public By getFaqQuestionLocator() {
+        return faqQuestion;
+    }
+
+    public By getFaqAnswerLocator() {
+        return faqAnswer;
+    }
+
 }

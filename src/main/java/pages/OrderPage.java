@@ -38,7 +38,6 @@ public class OrderPage {
     }
 
     public void fillFirstStep(String name, String lastName, String address, String phone) {
-        // Заполняем поля с ожиданием
         wait.until(ExpectedConditions.visibilityOfElementLocated(nameField)).sendKeys(name);
         driver.findElement(lastNameField).sendKeys(lastName);
         driver.findElement(addressField).sendKeys(address);
@@ -63,7 +62,7 @@ public class OrderPage {
         driver.findElement(dateField).sendKeys(date);
 
         // Выбор периода аренды
-        WebElement periodDropdown = driver.findElement(rentalPeriod);
+        WebElement periodDropdown = wait.until(ExpectedConditions.elementToBeClickable(rentalPeriod));
         js.executeScript("arguments[0].click();", periodDropdown);
 
         WebElement periodOption = wait.until(ExpectedConditions.elementToBeClickable(
@@ -72,10 +71,10 @@ public class OrderPage {
 
         // Выбор цвета
         if ("black".equals(color)) {
-            WebElement blackCheckbox = driver.findElement(colorBlack);
+            WebElement blackCheckbox = wait.until(ExpectedConditions.elementToBeClickable(colorBlack));
             js.executeScript("arguments[0].click();", blackCheckbox);
         } else {
-            WebElement greyCheckbox = driver.findElement(colorGrey);
+            WebElement greyCheckbox = wait.until(ExpectedConditions.elementToBeClickable(colorGrey));
             js.executeScript("arguments[0].click();", greyCheckbox);
         }
 
@@ -99,5 +98,13 @@ public class OrderPage {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public By getDateFieldLocator() {
+        return dateField;
+    }
+
+    public By getConfirmButtonLocator() {
+        return confirmButton;
     }
 }
